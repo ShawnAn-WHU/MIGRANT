@@ -1,3 +1,5 @@
+# This is the script to preprocess the DOTA-v2.0 dataset.
+# The DOTA-v2.0 dataset is available at https://gcheng-nwpu.github.io/#Datasets
 import os
 import json
 import shutil
@@ -5,6 +7,10 @@ from PIL import Image
 from tqdm import tqdm
 from natsort import natsorted
 import xml.etree.ElementTree as ET
+
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+from utils import dior_utils
 
 
 def check_image_size(image_dir):
@@ -30,15 +36,17 @@ def copy_images(image_dir, output_dir):
 
 def parse_xml(hbb_xml_path, obb_xml_path):
     tree_hbb = ET.parse(hbb_xml_path)
-    root_obb = ET.parse(obb_xml_path)
+    tree_obb = ET.parse(obb_xml_path)
     root_hbb = tree_hbb.getroot()
-    root_obb = root_obb.getroot()
+    root_obb = tree_obb.getroot()
 
     filename = root_hbb.find("filename").text
     hbb_boxes = []
     obb_boxes = []
-    for obj in root_hbb.findall("object"):
-        obj_name = obj.find("name").text
+    hbb_objects = root_hbb.findall("object")
+    obb_objects = root_obb.findall("object")
+
+    for obj in hbb_objects:
         bndboxbox = obj.find("bndbox")
         hbb_box = [
             int(bndboxbox.find("xmin").text),
@@ -46,10 +54,27 @@ def parse_xml(hbb_xml_path, obb_xml_path):
             int(bndboxbox.find("xmax").text),
             int(bndboxbox.find("ymax").text),
         ]
-        hbb_boxes.append({"name": obj_name, "bbox": str(hbb_box)})
-    for obj in root_obb.findall("object"):
-        obj_name = obj.find("name").text
-        robndbox = obj.find("robndbox")
+        # obb and hbb may not be in the same order
+        # so compare hbb with all obb and find the one with max iou
+        iou_list = []
+        for obb_obj in obb_objects:
+            robndbox = obb_obj.find("robndbox")
+            obb_box = [
+                int(robndbox.find("x_left_top").text),
+                int(robndbox.find("y_left_top").text),
+                int(robndbox.find("x_right_top").text),
+                int(robndbox.find("y_right_top").text),
+                int(robndbox.find("x_right_bottom").text),
+                int(robndbox.find("y_right_bottom").text),
+                int(robndbox.find("x_left_bottom").text),
+                int(robndbox.find("y_left_bottom").text),
+            ]
+            iou = dior_utils.calculate_iou(hbb_box, obb_box)
+            iou_list.append(iou)
+
+        max_iou_index = iou_list.index(max(iou_list))
+        obb_obj = obb_objects[max_iou_index]
+        robndbox = obb_obj.find("robndbox")
         obb_box = [
             int(robndbox.find("x_left_top").text),
             int(robndbox.find("y_left_top").text),
@@ -60,7 +85,8 @@ def parse_xml(hbb_xml_path, obb_xml_path):
             int(robndbox.find("x_left_bottom").text),
             int(robndbox.find("y_left_bottom").text),
         ]
-        obb_boxes.append({"name": obj_name, "bbox": str(obb_box)})
+        hbb_boxes.append({"name": obj.find("name").text, "bbox": str(hbb_box)})
+        obb_boxes.append({"name": obj.find("name").text, "bbox": str(obb_box)})
 
     return filename, hbb_boxes, obb_boxes
 

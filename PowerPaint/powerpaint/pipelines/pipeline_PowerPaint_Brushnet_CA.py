@@ -1380,90 +1380,90 @@ class StableDiffusionPowerPaintBrushNetPipeline(
         is_unet_compiled = is_compiled_module(self.unet)
         is_brushnet_compiled = is_compiled_module(self.brushnet)
         is_torch_higher_equal_2_1 = is_torch_version(">=", "2.1")
-        with self.progress_bar(total=num_inference_steps) as progress_bar:
-            for i, t in enumerate(timesteps):
-                # Relevant thread:
-                # https://dev-discuss.pytorch.org/t/cudagraphs-in-pytorch-2-0/1428
-                if (is_unet_compiled and is_brushnet_compiled) and is_torch_higher_equal_2_1:
-                    torch._inductor.cudagraph_mark_step_begin()
-                # expand the latents if we are doing classifier free guidance
-                latent_model_input = torch.cat([latents] * 2) if self.do_classifier_free_guidance else latents
-                latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
+        # with self.progress_bar(total=num_inference_steps) as progress_bar:
+        for i, t in enumerate(timesteps):
+            # Relevant thread:
+            # https://dev-discuss.pytorch.org/t/cudagraphs-in-pytorch-2-0/1428
+            if (is_unet_compiled and is_brushnet_compiled) and is_torch_higher_equal_2_1:
+                torch._inductor.cudagraph_mark_step_begin()
+            # expand the latents if we are doing classifier free guidance
+            latent_model_input = torch.cat([latents] * 2) if self.do_classifier_free_guidance else latents
+            latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
 
-                # brushnet(s) inference
-                if guess_mode and self.do_classifier_free_guidance:
-                    # Infer BrushNet only for the conditional batch.
-                    control_model_input = latents
-                    control_model_input = self.scheduler.scale_model_input(control_model_input, t)
-                    brushnet_prompt_embeds = prompt_embeds.chunk(2)[1]
-                else:
-                    control_model_input = latent_model_input
-                    brushnet_prompt_embeds = prompt_embeds
+            # brushnet(s) inference
+            if guess_mode and self.do_classifier_free_guidance:
+                # Infer BrushNet only for the conditional batch.
+                control_model_input = latents
+                control_model_input = self.scheduler.scale_model_input(control_model_input, t)
+                brushnet_prompt_embeds = prompt_embeds.chunk(2)[1]
+            else:
+                control_model_input = latent_model_input
+                brushnet_prompt_embeds = prompt_embeds
 
-                if isinstance(brushnet_keep[i], list):
-                    cond_scale = [c * s for c, s in zip(brushnet_conditioning_scale, brushnet_keep[i])]
-                else:
-                    brushnet_cond_scale = brushnet_conditioning_scale
-                    if isinstance(brushnet_cond_scale, list):
-                        brushnet_cond_scale = brushnet_cond_scale[0]
-                    cond_scale = brushnet_cond_scale * brushnet_keep[i]
+            if isinstance(brushnet_keep[i], list):
+                cond_scale = [c * s for c, s in zip(brushnet_conditioning_scale, brushnet_keep[i])]
+            else:
+                brushnet_cond_scale = brushnet_conditioning_scale
+                if isinstance(brushnet_cond_scale, list):
+                    brushnet_cond_scale = brushnet_cond_scale[0]
+                cond_scale = brushnet_cond_scale * brushnet_keep[i]
 
-                down_block_res_samples, mid_block_res_sample, up_block_res_samples = self.brushnet(
-                    control_model_input,
-                    t,
-                    encoder_hidden_states=brushnet_prompt_embeds,
-                    brushnet_cond=conditioning_latents,
-                    conditioning_scale=cond_scale,
-                    guess_mode=guess_mode,
-                    return_dict=False,
-                )
+            down_block_res_samples, mid_block_res_sample, up_block_res_samples = self.brushnet(
+                control_model_input,
+                t,
+                encoder_hidden_states=brushnet_prompt_embeds,
+                brushnet_cond=conditioning_latents,
+                conditioning_scale=cond_scale,
+                guess_mode=guess_mode,
+                return_dict=False,
+            )
 
-                if guess_mode and self.do_classifier_free_guidance:
-                    # Inferred BrushNet only for the conditional batch.
-                    # To apply the output of BrushNet to both the unconditional and conditional batches,
-                    # add 0 to the unconditional batch to keep it unchanged.
-                    down_block_res_samples = [torch.cat([torch.zeros_like(d), d]) for d in down_block_res_samples]
-                    mid_block_res_sample = torch.cat([torch.zeros_like(mid_block_res_sample), mid_block_res_sample])
-                    up_block_res_samples = [torch.cat([torch.zeros_like(d), d]) for d in up_block_res_samples]
+            if guess_mode and self.do_classifier_free_guidance:
+                # Inferred BrushNet only for the conditional batch.
+                # To apply the output of BrushNet to both the unconditional and conditional batches,
+                # add 0 to the unconditional batch to keep it unchanged.
+                down_block_res_samples = [torch.cat([torch.zeros_like(d), d]) for d in down_block_res_samples]
+                mid_block_res_sample = torch.cat([torch.zeros_like(mid_block_res_sample), mid_block_res_sample])
+                up_block_res_samples = [torch.cat([torch.zeros_like(d), d]) for d in up_block_res_samples]
 
-                # predict the noise residual
-                noise_pred = self.unet(
-                    latent_model_input,
-                    t,
-                    encoder_hidden_states=prompt_embedsU,
-                    timestep_cond=timestep_cond,
-                    cross_attention_kwargs=self.cross_attention_kwargs,
-                    down_block_add_samples=down_block_res_samples,
-                    mid_block_add_sample=mid_block_res_sample,
-                    up_block_add_samples=up_block_res_samples,
-                    added_cond_kwargs=added_cond_kwargs,
-                    return_dict=False,
-                )[0]
+            # predict the noise residual
+            noise_pred = self.unet(
+                latent_model_input,
+                t,
+                encoder_hidden_states=prompt_embedsU,
+                timestep_cond=timestep_cond,
+                cross_attention_kwargs=self.cross_attention_kwargs,
+                down_block_add_samples=down_block_res_samples,
+                mid_block_add_sample=mid_block_res_sample,
+                up_block_add_samples=up_block_res_samples,
+                added_cond_kwargs=added_cond_kwargs,
+                return_dict=False,
+            )[0]
 
-                # perform guidance
-                if self.do_classifier_free_guidance:
-                    noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-                    noise_pred = noise_pred_uncond + self.guidance_scale * (noise_pred_text - noise_pred_uncond)
+            # perform guidance
+            if self.do_classifier_free_guidance:
+                noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
+                noise_pred = noise_pred_uncond + self.guidance_scale * (noise_pred_text - noise_pred_uncond)
 
-                # compute the previous noisy sample x_t -> x_t-1
-                latents = self.scheduler.step(noise_pred, t, latents, **extra_step_kwargs, return_dict=False)[0]
+            # compute the previous noisy sample x_t -> x_t-1
+            latents = self.scheduler.step(noise_pred, t, latents, **extra_step_kwargs, return_dict=False)[0]
 
-                if callback_on_step_end is not None:
-                    callback_kwargs = {}
-                    for k in callback_on_step_end_tensor_inputs:
-                        callback_kwargs[k] = locals()[k]
-                    callback_outputs = callback_on_step_end(self, i, t, callback_kwargs)
+            if callback_on_step_end is not None:
+                callback_kwargs = {}
+                for k in callback_on_step_end_tensor_inputs:
+                    callback_kwargs[k] = locals()[k]
+                callback_outputs = callback_on_step_end(self, i, t, callback_kwargs)
 
-                    latents = callback_outputs.pop("latents", latents)
-                    prompt_embeds = callback_outputs.pop("prompt_embeds", prompt_embeds)
-                    negative_prompt_embeds = callback_outputs.pop("negative_prompt_embeds", negative_prompt_embeds)
+                latents = callback_outputs.pop("latents", latents)
+                prompt_embeds = callback_outputs.pop("prompt_embeds", prompt_embeds)
+                negative_prompt_embeds = callback_outputs.pop("negative_prompt_embeds", negative_prompt_embeds)
 
                 # call the callback, if provided
-                if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % self.scheduler.order == 0):
-                    progress_bar.update()
-                    if callback is not None and i % callback_steps == 0:
-                        step_idx = i // getattr(self.scheduler, "order", 1)
-                        callback(step_idx, t, latents)
+                # if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % self.scheduler.order == 0):
+                #     progress_bar.update()
+                #     if callback is not None and i % callback_steps == 0:
+                #         step_idx = i // getattr(self.scheduler, "order", 1)
+                #         callback(step_idx, t, latents)
 
         # If we do sequential model offloading, let's offload unet and brushnet
         # manually for max memory savings

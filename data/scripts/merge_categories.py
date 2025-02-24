@@ -6,8 +6,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from utils import constants
 
 
-DOTA_json = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/label_1.json"
-DIOR_json = "/home/anxiao/Datasets/MIGRANT/DIOR-R/label_1.json"
+DOTA_json = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/label.json"
+DIOR_json = "/home/anxiao/Datasets/MIGRANT/DIOR-R/label.json"
 
 with open(DOTA_json, "r") as f:
     DOTA_data = json.load(f)

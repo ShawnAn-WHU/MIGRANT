@@ -6,18 +6,18 @@ from tqdm import tqdm
 
 
 def extract_images(json_path, json_save_path, img_out_path, n):
-    os.makedirs(img_out_path, exist_ok=True)
+    # os.makedirs(img_out_path, exist_ok=True)
     with open(json_path, "r") as f:
         res = json.load(f)
 
     save_res = []
     for item in tqdm(res):
         if len(item["objects"]) in n:
-            image_path = item["image_path"]
-            image_name = item["image_name"]
-            if "." not in image_name:
-                image_name += ".png"
-            shutil.copy(image_path, os.path.join(img_out_path, image_name))
+            # image_path = item["image_path"]
+            # image_name = item["image_name"]
+            # if "." not in image_name:
+            #     image_name += ".png"
+            # shutil.copy(image_path, os.path.join(img_out_path, image_name))
             save_res.append(item)
         
     with open(json_save_path, "w") as f:

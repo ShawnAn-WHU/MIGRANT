@@ -25,11 +25,6 @@ data_root_ori
             └── DOTA-v2.0_val_hbb
 ```
 
-run the following script to extract images with only one object for the COG task.
-```bash
-python scripts/extract_img_with_n_obj.py --dataset_name DOTA-v2_0 --n_obj 1
-```
-
 ---
 
 ## DIOR-R
@@ -44,12 +39,14 @@ data_root_ori
     └── JPEGImages-trainval
 ```
 
-run the following script to extract images with only one object for the COG task.
-```bash
-python scripts/extract_img_with_n_obj.py --dataset_name DIOR-R --n_obj 1
-```
-
 run the following script to merge the same categories of DOTA-v2.0 and DIOR-R.
 ```bash
 python script/merge_categories.py
+```
+
+run the following scripts to extract images with only one object for the COG task.
+```bash
+python scripts/extract_img_with_n_obj.py --dataset_name DOTA-v2_0 --n_obj [1]
+
+python scripts/extract_img_with_n_obj.py --dataset_name DIOR-R --n_obj [1]
 ```
