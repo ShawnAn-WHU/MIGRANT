@@ -542,7 +542,6 @@ if __name__ == "__main__":
     args.add_argument("--input_json", type=str, required=True, help="Path to input json.")
     args.add_argument("--output_dir", type=str, required=True, help="Path to save output image.")
     args.add_argument("--output_json", type=str, required=True, help="Path to save output json.")
-    args.add_argument("--refer_json", type=str, required=True, help="Path to refer output json.")
     args = args.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -551,33 +550,17 @@ if __name__ == "__main__":
     weight_dtype = torch.float16 if args.weight_dtype == "float16" else torch.float32
     controller = PowerPaintController(weight_dtype, args.checkpoint_dir, args.local_files_only, args.version)
 
-    EXCLUDE_CATEGORIES = [
-        "airport",
-        "dam",
-        "chimney",
-        "ground track field",
-        "golf field",
-        "vehicle",
-        "stadium",
-    ]
+    INCLUDE_CATEGORIES = ["vehicle"]
 
     with open(args.input_json, "r") as f:
         data = json.load(f)
-    
-    with open(args.refer_json, "r") as f:
-        refer_data = json.load(f)
-    
-    exclude_data = [item["image_path"] for item in refer_data]
 
     output_json = []
     for item in tqdm(data):
-        if item["image_path"] in exclude_data:
-            continue
-
         objects = [
             obj
             for obj in item["objects"]
-            if obj["object_name"] not in EXCLUDE_CATEGORIES
+            if obj["object_name"] in INCLUDE_CATEGORIES
         ]
         if not objects:
             continue

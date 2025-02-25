@@ -5,19 +5,24 @@ import argparse
 from tqdm import tqdm
 
 
-def extract_images(json_path, json_save_path, img_out_path, n):
+def extract_images(json_path, json_save_path, img_out_path, n, include):
     # os.makedirs(img_out_path, exist_ok=True)
     with open(json_path, "r") as f:
         res = json.load(f)
 
     save_res = []
     for item in tqdm(res):
-        if len(item["objects"]) in n:
+        if include != [""]:
+            objects = [obj for obj in item["objects"] if obj["object_name"] in include]
+        else:
+            objects = item["objects"]
+        if len(objects) in n:
             # image_path = item["image_path"]
             # image_name = item["image_name"]
             # if "." not in image_name:
             #     image_name += ".png"
             # shutil.copy(image_path, os.path.join(img_out_path, image_name))
+            item["objects"] = objects
             save_res.append(item)
         
     with open(json_save_path, "w") as f:
@@ -40,6 +45,13 @@ if __name__ == "__main__":
         default="[1]",
         help="Number range of objects in the image",
     )
+    parser.add_argument(
+        "--include",
+        "-i",
+        type=str,
+        default="[]",
+        help="included objects in the image (comma separated)",
+    )
     args = parser.parse_args()
 
     args.n_obj = json.loads(args.n_obj)
@@ -49,9 +61,14 @@ if __name__ == "__main__":
     else:
         num_list = list(range(args.n_obj[0], args.n_obj[1] + 1))
         out_name = f"{num_list[0]}_to_{num_list[-1]}"
+    
+    include = args.include.strip("[]").split(",")
+    include = [obj.strip() for obj in include]
+    if include != [""]:
+        out_name += f"_include_{'_'.join(include)}"
 
     img_out_path = f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/{out_name}_obj"
     json_path = f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/label.json"
     json_save_path = f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/label_{out_name}.json"
 
-    extract_images(json_path, json_save_path, img_out_path, num_list)
+    extract_images(json_path, json_save_path, img_out_path, num_list, include)

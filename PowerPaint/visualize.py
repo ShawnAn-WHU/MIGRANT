@@ -22,6 +22,9 @@ def vis_images(json_path, img_out_path):
 
     for item in tqdm(res):
         img = Image.open(item["image_path"])
+        image_path = item["image_path"].split("/")[-1]
+        if os.path.exists(os.path.join(img_out_path, image_path)):
+            continue
         img_remove = Image.open(item["output_image_path"])
         draw = ImageDraw.Draw(img)
         draw_remove = ImageDraw.Draw(img_remove)
@@ -45,7 +48,7 @@ if __name__ == "__main__":
         "--dataset_name",
         "-n",
         type=str,
-        default="DIOR-R",
+        default="DOTA-v2_0",
         help="Name of the dataset",
     )
     args = parser.parse_args()

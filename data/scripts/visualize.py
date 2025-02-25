@@ -42,21 +42,31 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--n_obj",
-        type=int,
-        default=0,
+        type=str,
+        default="[]",
         help="Number of objects in the image",
     )
     args = parser.parse_args()
 
-    if not args.n_obj:
+    args.n_obj = json.loads(args.n_obj)
+    if len(args.n_obj) == 0:
+        num_list = None
+    elif len(args.n_obj) == 1:
+        num_list = args.n_obj
+        out_name = f"{num_list[0]}"
+    else:
+        num_list = list(range(args.n_obj[0], args.n_obj[1] + 1))
+        out_name = f"{num_list[0]}_to_{num_list[-1]}"
+
+    if not num_list:
         img_out_path = f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/vis"
         json_path = f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/label.json"
     else:
         img_out_path = (
-            f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/vis_{args.n_obj}_obj"
+            f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/vis_{out_name}_obj"
         )
         json_path = (
-            f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/label_{args.n_obj}.json"
+            f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/label_{out_name}.json"
         )
 
     vis_images(json_path, img_out_path)
