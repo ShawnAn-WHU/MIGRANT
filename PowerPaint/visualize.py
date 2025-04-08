@@ -51,13 +51,20 @@ if __name__ == "__main__":
         default="DOTA-v2_0",
         help="Name of the dataset",
     )
+    parser.add_argument(
+        "--suffix",
+        "-s",
+        type=str,
+        default="remove_2_to_4_vehicle",
+        help="suffix of the dataset",
+    )
     args = parser.parse_args()
 
     img_out_path = (
-        f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/vis_remove_2_to_10"
+        f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/vis_{args.suffix}"
     )
     json_path = (
-        f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/label_remove_2_to_10.json"
+        f"/home/anxiao/Datasets/MIGRANT/{args.dataset_name}/label_{args.suffix}.json"
     )
 
     vis_images(json_path, img_out_path)
