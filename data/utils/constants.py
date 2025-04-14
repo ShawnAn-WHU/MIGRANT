@@ -38,7 +38,7 @@ DOTA_DIOR_COMBINE = [
     "overpass",
     "soccer ball field",
     "helipad",
-    "expressway-service-area",
+    "expressway service area",
     "trainstation",
     "vehicle",
     "stadium",

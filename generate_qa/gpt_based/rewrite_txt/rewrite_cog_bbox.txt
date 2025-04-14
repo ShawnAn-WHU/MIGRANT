@@ -1,0 +1,50 @@
+1. Identify the position of the object within the image by defining its bounding box.  
+2. Determine the coordinates of the bounding box to outline the location of the object.  
+3. Specify the rectangular area in the image that encloses the object.  
+4. Mark the object's position using a bounding box indicating its spatial dimensions.  
+5. Delineate the object in the image by mapping out its bounding box coordinates.  
+6. Outline the area that contains the object by specifying a bounding box.  
+7. Locate the object within the image, pinpointing it through a bounding box.  
+8. Define the image section where the object resides using bounding box parameters.  
+9. Provide the bounding box that identifies the object in the image.  
+10. Box the detected object, determining its boundaries within the image.  
+11. Highlight the specific area of the image containing the object with a bounding box.  
+12. Draw coordinates around the object to define its bounding box location.  
+13. Map out the limits of the object in the image using a bounding box.  
+14. Give the bounding box dimensions to locate the object in the image.  
+15. Encompass the object’s position with a bounding box tailored to its placement.  
+16. Frame the object in question within the image by designating its bounding box.  
+17. Specify a box outline corresponding to the object’s location in the image.  
+18. Identify the rectangular bounds of the object by providing its bounding box.  
+19. Surround the object with a box that highlights its placement in the image.  
+20. Pinpoint the object via a bounding box that encapsulates its dimensions.  
+21. Encircle the object with straight-line coordinates forming a bounding box.  
+22. Define the four corners of the object’s location within a bounding box.  
+23. Mark the object’s boundaries in the image by describing its bounding box.  
+24. Determine the object’s exact area in the image with a bounding box representation.  
+25. Provide a visually marked region for the object using bounding box values.  
+26. Detail the spatial range of the object within the image using a bounding box.  
+27. Record the object’s placement via a bounding box outlining its limits.  
+28. Indicate the borders of the object in the image to construct its bounding box.  
+29. Show the object’s position as a defined box cut within the image.  
+30. Use a bounding box to isolate the object against the rest of the image.  
+31. Specify the coordinates that form an enclosing box around the object.  
+32. Create bounding box measurements to locate the object in the image.  
+33. Describe where the object is found in the image using bounding box coordinates.  
+34. Use box-like borders to locate the object’s section in the image.  
+35. Highlight the object’s area with a set of bounding box specifications.  
+36. Pin down the location of the object within a confined bounding box space.  
+37. Sketch a boundary around the object that appears as a bounding box.  
+38. Illustrate the object’s detectable area with a bounding box in the image.  
+39. Generate bounding box parameters that enclose the item in the image.  
+40. Encapsulate the region of interest in a bounding box highlighting the object.  
+41. Surround the object with numerical bounds demonstrating its rectangle edges.  
+42. Chart the object’s position in the image using a bounding box system.  
+43. Index the object’s position by laying out rectangular box clues around it.  
+44. Encase the object region with coordinates forming the bounding box.  
+45. Enclose the object in the image within a digitally marked bounding box.  
+46. Define the visual stretch of the object with bounding box coordinates.  
+47. Use a rectangular specification to find the object’s area in the image.  
+48. Implement bounding box criteria to place the object’s image section.  
+49. Illustrate the object’s relative image location using a bounding box sketch.  
+50. Map the object’s outline through a confined rectangular bounding box structure.

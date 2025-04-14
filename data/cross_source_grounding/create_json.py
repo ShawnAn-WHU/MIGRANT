@@ -62,6 +62,7 @@ if __name__ == "__main__":
 
     image_root = "/home/anxiao/Datasets/MIGRANT/CSG"
 
+    # original images
     # for city in os.listdir(image_root):
     #     city_dir = os.path.join(image_root, city)
     #     if not os.path.isdir(city_dir):
@@ -80,6 +81,33 @@ if __name__ == "__main__":
     #             continue
     #         image = Image.open(image_path).convert("RGB")
     #         image.save(os.path.join(png_save_dir, image_name.replace("tif", "png")))
+
+    # plotted images
+    # for city in os.listdir(image_root):
+    #     city_dir = os.path.join(image_root, city)
+    #     if not os.path.isdir(city_dir):
+    #         continue
+    #     if "_plot" not in city:
+    #         continue
+    #     sate_plot_dir = os.path.join(city_dir, "tif_plot")
+    #     map_plot_dir = os.path.join(city_dir, "map_plot")
+    #     sate_png_save_dir = os.path.join(image_root, "png_plot")
+    #     map_png_save_dir = os.path.join(image_root, "png_map_plot")
+    #     os.makedirs(sate_png_save_dir, exist_ok=True)
+    #     os.makedirs(map_png_save_dir, exist_ok=True)
+
+    #     for image_name in tqdm(os.listdir(sate_plot_dir)):
+    #         image_path = os.path.join(sate_plot_dir, image_name)
+    #         if not image_name.endswith(".tif"):
+    #             continue
+    #         image = Image.open(image_path).convert("RGB")
+    #         image.save(os.path.join(sate_png_save_dir, image_name.replace("tif", "png")))
+    #     for image_name in tqdm(os.listdir(map_plot_dir)):
+    #         image_path = os.path.join(map_plot_dir, image_name)
+    #         if not image_name.endswith(".tif"):
+    #             continue
+    #         image = Image.open(image_path).convert("RGB")
+    #         image.save(os.path.join(map_png_save_dir, image_name.replace("tif", "png")))
 
     json_path = os.path.join(image_root, "coords.json")
     get_new_json(json_path)

@@ -38,7 +38,7 @@ DOTA_DIOR_COMBINE = [
     "overpass",
     "soccer ball field",
     "helipad",
-    "Expressway-Service-area",
+    "expressway service area",
     "trainstation",
     "vehicle",
     "stadium",
@@ -48,3 +48,44 @@ DOTA_DIOR_COMBINE = [
     "swimming pool",
     "windmill"
 ]
+
+rewrite_prompt = """You are provided with a text. Your task is to rewrite the text using different words while maintaining the same meaning. Produce 50 distinct versions of the text.
+
+# Steps
+
+1. Read and understand the original text.
+2. Identify key phrases and their meanings.
+3. Use synonyms and alternative phrases to construct a new version.
+4. Ensure that the meaning of the original text is preserved in each version.
+5. Repeat this process until you create 50 unique texts.
+
+# Output Format
+
+The output should consist of 50 separate text variations. Each version should be distinct but retain the meaning of the original text, ideally formatted in a simple list.
+
+# Notes
+
+Consider that some variations may inherently have different nuances; strive for variety while staying true to the original meaning."""
+
+
+QWEN2_VL_QA_FORMAT = [
+    {
+        "role": "user",
+        "content": "",
+    },
+    {
+        "role": "assistant",
+        "content": "",
+    }
+]
+
+QWEN2_VL_FORMAT = {
+    "messages": [
+        {
+            "role": "system",
+            "content": "You are a helpful assistant."
+        },
+    ],
+    "images": []
+}
+
