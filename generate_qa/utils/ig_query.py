@@ -1,7 +1,7 @@
 ig_identify_arrow = [
     "Could you please specify what the <color> arrow is pointing to?",
     "Please identify the object that the <color> arrow is pointed to.",
-    "What is the object pointed to the <color> arrow?",
+    "What is the object pointed by the <color> arrow?",
     "Please discern what the <color> arrow is targeting.",
     "Identify the object to which the <color> arrow is directed.",
     "What is highlighted by the <color> arrow?",

@@ -1,6 +1,6 @@
 icg_identify = [
-    "Identify the object in Region-",
-    "What is the object shown in Region-",
+    "Identify the object in Region-.",
+    "What is the object shown in Region-?",
     "Can you recognize the object in Region-?",
     "What item is visible in Region-?",
     "Can you specify the object in Region-?",

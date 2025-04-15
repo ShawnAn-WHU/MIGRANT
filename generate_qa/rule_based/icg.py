@@ -2,10 +2,10 @@ import os
 import copy
 import json
 import random
+from PIL import Image
 from tqdm import tqdm
 
 import sys
-
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from utils import constants, icg_query
 
@@ -24,14 +24,18 @@ with open(DIOR_R_region, "r") as f:
 icg_data = DOTA_v2_0_region + DIOR_R_region
 
 
-def format_bbox(bbox_type, bbox_item):
+def format_bbox(bbox_type, bbox_item, image_path_src):
+    image = Image.open(image_path_src)
+    width, height = image.size
     bbox_type = "hbb" if bbox_type == "horizontal" else "obb"
     coords = json.loads(bbox_item[bbox_type])
     if bbox_type == "hbb":
-        return f"({coords[0]}, {coords[1]}),({coords[2]},{coords[3]})"
+        return f"({int(coords[0] / width * 1000)},{int(coords[1] / height * 1000)}),({int(coords[2] / width * 1000)},{int(coords[3] / height * 1000)})"
     else:
-        return ",".join(f"({coords[i]},{coords[i+1]})" for i in range(0, 8, 2))
-
+        return ",".join(
+            f"({int(coords[i] / width * 1000)},{int(coords[i+1] / height * 1000)})"
+            for i in range(0, 8, 2)
+        )
 
 icg_qa = []
 for item in tqdm(icg_data):
@@ -65,7 +69,7 @@ for item in tqdm(icg_data):
                 .replace("bounding box", f"{bbox_type} bounding box")
                 .replace("in the image", "in the source image")
             )
-            bbox = format_bbox(bbox_type, item["objects"][i - 1])
+            bbox = format_bbox(bbox_type, item["objects"][i - 1], image_path_src)
             qa_item[1][
                 "content"
             ] = f"<|object_ref_start|>{item['objects'][i - 1]['object_name']}<|object_ref_end|><|box_start|>{bbox}<|box_end|>"
@@ -88,7 +92,7 @@ for item in tqdm(icg_data):
                 .replace("bounding box", f"{bbox_type} bounding box")
                 .replace("in the image", "in the source image")
             )
-            bbox = format_bbox(bbox_type, item["objects"][i - 1])
+            bbox = format_bbox(bbox_type, item["objects"][i - 1], image_path_src)
             qa_item[1][
                 "content"
             ] = f"<|object_ref_start|>{item['objects'][i - 1]['object_name']}<|object_ref_end|><|box_start|>{bbox}<|box_end|>"
@@ -106,7 +110,7 @@ for item in tqdm(icg_data):
         qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
         qa_item[0]["content"] = query_text
         qa_item[1]["content"] = "".join(
-            f"Region-{i+1}: <|object_ref_start|>{item['objects'][i]['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, item['objects'][i])}<|box_end|>"
+            f"Region-{i+1}: <|object_ref_start|>{item['objects'][i]['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, item['objects'][i], image_path_src)}<|box_end|>"
             for i in range(num_regions)
         )
         qa["messages"].extend(qa_item)

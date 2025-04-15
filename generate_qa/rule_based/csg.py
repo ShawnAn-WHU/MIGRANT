@@ -2,6 +2,7 @@ import os
 import copy
 import json
 import random
+from PIL import Image
 from tqdm import tqdm
 
 import sys
@@ -22,12 +23,17 @@ with open(map_json, "r") as f:
 
 
 def format_bbox(bbox_type, bbox_item):
+    image = Image.open(bbox_item["image_path"])
+    width, height = image.size
     bbox_type = "hbb" if bbox_type == "horizontal" else "obb"
     coords = json.loads(bbox_item[bbox_type])
     if bbox_type == "hbb":
-        return f"({coords[0]}, {coords[1]}),({coords[2]},{coords[3]})"
+        return f"({int(coords[0] / width * 1000)},{int(coords[1] / height * 1000)}),({int(coords[2] / width * 1000)},{int(coords[3] / height * 1000)})"
     else:
-        return ",".join(f"({coords[i]},{coords[i+1]})" for i in range(0, 8, 2))
+        return ",".join(
+            f"({int(coords[i] / width * 1000)},{int(coords[i+1] / height * 1000)})"
+            for i in range(0, 8, 2)
+        )
 
 
 csg_qa = []
@@ -57,7 +63,7 @@ for item_sate, item_map in tqdm(zip(satellite_data, map_data)):
                 random.choice(csg_query.csg_vp_bbox)
                 .replace("<image1>", "the Satellite Image")
                 .replace("<image2>", "the Map Image")
-                .replace("bounding box coordinates", f"{bbox_type} bounding box coordinates")
+                .replace("bounding box", f"{bbox_type} bounding box")
             )
             qa["images"] = [sate_plot_path, map_path]
         else:  # tp
@@ -69,7 +75,7 @@ for item_sate, item_map in tqdm(zip(satellite_data, map_data)):
                     "the object",
                     f"the object <|box_start|>{format_bbox(sate_bbox_type, item_sate)}<|box_end|>",
                 )
-                .replace("bounding box coordinates", f"{bbox_type} bounding box coordinates")
+                .replace("bounding box", f"{bbox_type} bounding box")
             )
             qa["images"] = [sate_path, map_path]
         qa_item[0]["content"] = image_prefix + query_text
@@ -87,7 +93,7 @@ for item_sate, item_map in tqdm(zip(satellite_data, map_data)):
                 random.choice(csg_query.csg_vp_bbox)
                 .replace("<image1>", "the Map Image")
                 .replace("<image2>", "the Satellite Image")
-                .replace("bounding box coordinates", f"{bbox_type} bounding box coordinates")
+                .replace("bounding box", f"{bbox_type} bounding box")
             )
             qa["images"] = [map_plot_path, sate_path]
         else:  # tp
@@ -99,7 +105,7 @@ for item_sate, item_map in tqdm(zip(satellite_data, map_data)):
                     "the object",
                     f"the object <|box_start|>{format_bbox(map_bbox_type, item_map)}<|box_end|>",
                 )
-                .replace("bounding box coordinates", f"{bbox_type} bounding box coordinates")
+                .replace("bounding box", f"{bbox_type} bounding box")
             )
             qa["images"] = [map_path, sate_path]
         qa_item[0]["content"] = image_prefix + query_text

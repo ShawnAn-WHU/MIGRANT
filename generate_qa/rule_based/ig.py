@@ -2,6 +2,7 @@ import os
 import copy
 import json
 import random
+from PIL import Image
 from tqdm import tqdm
 
 import sys
@@ -45,14 +46,18 @@ for category in image_item_dict_ref:
         image_item_dict_ref[category].append(new_item)
 
 
-def format_bbox(bbox_type, bbox_item):
+def format_bbox(bbox_type, bbox_item, item):
+    image = Image.open(item["image_path"])
+    width, height = image.size
     bbox_type = "hbb" if bbox_type == "horizontal" else "obb"
     coords = json.loads(bbox_item[bbox_type])
     if bbox_type == "hbb":
-        return f"({coords[0]}, {coords[1]}),({coords[2]},{coords[3]})"
+        return f"({int(coords[0] / width * 1000)},{int(coords[1] / height * 1000)}),({int(coords[2] / width * 1000)},{int(coords[3] / height * 1000)})"
     else:
-        return ",".join(f"({coords[i]},{coords[i+1]})" for i in range(0, 8, 2))
-
+        return ",".join(
+            f"({int(coords[i] / width * 1000)},{int(coords[i+1] / height * 1000)})"
+            for i in range(0, 8, 2)
+        )
 
 num_images = [2, 3, 4, 5, 6]
 ig_qa = []
@@ -85,6 +90,22 @@ for item in tqdm(ig_data):
     else:
         identify_query = random.choice(ig_query.ig_identify_triangle)
 
+    if "." in identify_query:
+        identify_query = identify_query.replace(
+            ".",
+            random.choice(
+                [" in Image-1.", " in the 1st image.", " in the first image."]
+            ),
+        )
+    elif "?" in identify_query:
+        identify_query = identify_query.replace(
+            "?",
+            random.choice(
+                [" in Image-1?", " in the 1st image?", " in the first image?"]
+            ),
+        )
+    else:
+        raise ValueError("Identify query must end with '.' or '?'")
 
     qa = copy.deepcopy(constants.QWEN2_VL_FORMAT)
     ig_type = random.choice(
@@ -113,7 +134,7 @@ for item in tqdm(ig_data):
                 .replace("in the image", f"in the {suffix} image")
             )
             qa_item[1]["content"] = "".join(
-                f"<|object_ref_start|>{object_item['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, object_item)}<|box_end|>"
+                f"<|object_ref_start|>{object_item['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, object_item, selected_items[i - 2])}<|box_end|>"
                 for object_item in selected_items[i - 2]["objects"]
             )
             qa["messages"].extend(qa_item)
@@ -133,7 +154,7 @@ for item in tqdm(ig_data):
                 .replace("in the image", f"in the {suffix} image")
             )
             qa_item[1]["content"] = "".join(
-                f"<|object_ref_start|>{object_item['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, object_item)}<|box_end|>"
+                f"<|object_ref_start|>{object_item['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, object_item, selected_items[i - 2])}<|box_end|>"
                 for object_item in selected_items[i - 2]["objects"]
             )
             qa["messages"].extend(qa_item)
@@ -143,16 +164,16 @@ for item in tqdm(ig_data):
         query_text += (
             random.choice(ig_query.ig_bbox)
             .replace("bounding box", f"{bbox_type} bounding box")
-            .replace("in the image", "in all images")
+            .replace("in the image", "in all other images")
         )
         qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
         qa_item[0]["content"] = query_text
         for i, item in enumerate(selected_items):
             qa_item[1]["content"] += f"Image-{i+2}: "
             for j in range(len(item["objects"])):
-                qa_item[1]["content"] += (
-                    f"<|object_ref_start|>{item['objects'][j]['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, item['objects'][j])}<|box_end|>"
-                )
+                qa_item[1][
+                    "content"
+                ] += f"<|object_ref_start|>{item['objects'][j]['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, item['objects'][j], item)}<|box_end|>"
             qa_item[1]["content"] += "\n"
         qa["messages"].extend(qa_item)
     else:  # identify_all_images
@@ -166,14 +187,14 @@ for item in tqdm(ig_data):
         qa_item[0]["content"] = (
             random.choice(ig_query.ig_bbox)
             .replace("bounding box", f"{bbox_type} bounding box")
-            .replace("in the image", "in all images")
+            .replace("in the image", "in all other images")
         )
         for i, item in enumerate(selected_items):
             qa_item[1]["content"] += f"Image-{i+2}: "
             for j in range(len(item["objects"])):
-                qa_item[1]["content"] += (
-                    f"<|object_ref_start|>{item['objects'][j]['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, item['objects'][j])}<|box_end|>"
-                )
+                qa_item[1][
+                    "content"
+                ] += f"<|object_ref_start|>{item['objects'][j]['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, item['objects'][j], item)}<|box_end|>"
             qa_item[1]["content"] += "\n"
         qa["messages"].extend(qa_item)
 
