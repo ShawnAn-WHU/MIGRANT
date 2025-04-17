@@ -21,6 +21,15 @@ with open(satellite_json, "r") as f:
 with open(map_json, "r") as f:
     map_data = json.load(f)
 
+map_image_names = [item["image_name"].replace("_map", "") for item in map_data]
+filter_satellite_data = []
+for item in satellite_data:
+    if item["image_name"] in map_image_names:
+        filter_satellite_data.append(item)
+satellite_data = filter_satellite_data
+
+assert len(satellite_data) == len(map_data), "Satellite and map data lengths do not match."
+
 
 def format_bbox(bbox_type, bbox_item):
     image = Image.open(bbox_item["image_path"])
@@ -38,6 +47,7 @@ def format_bbox(bbox_type, bbox_item):
 
 csg_qa = []
 for item_sate, item_map in tqdm(zip(satellite_data, map_data)):
+    assert item_sate["image_name"] == item_map["image_name"].replace("_map", ""), "Image names do not match."
     sate_path = item_sate["image_path"]
     map_path = item_map["image_path"]
     sate_plot_path = sate_path.replace("/png/", "/png_plot/")

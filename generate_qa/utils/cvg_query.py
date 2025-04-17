@@ -1,0 +1,60 @@
+cvg_match = [
+    "Identify the exact spot in the satellite image where the panoramic photo was captured.",
+    "Pinpoint the location within the satellite image that corresponds to the panoramic shot.",
+    "Match the panoramic photo's perspective to a specific point in the satellite view.",
+    "Locate the precise place on the satellite image where the panoramic image originates.",
+    "Determine the source location of the panoramic view on the satellite photograph.",
+    "Find the exact spot in the satellite image that aligns with the panoramic perspective.",
+    "Mark the area in the satellite image from which the panoramic image was taken.",
+    "Trace the location in the satellite view that corresponds to the panoramic picture.",
+    "Identify the point on the satellite image tied to the panoramic photo.",
+    "Specify the area in the satellite image that represents the source of the panoramic view.",
+    "Determine which part of the satellite image corresponds to the panoramic picture.",
+    "Discover the exact spot on the satellite image where the panoramic image was taken.",
+    "Identify the coordinates in the satellite image that match the panoramic view.",
+    "Find the point in the satellite view that connects to the panoramic scene.",
+    "Detect the precise place on the satellite map that shows the panoramic photo's origin.",
+    "Specify the place in the satellite image where the panorama is taken from.",
+    "Specify the coordinates in the satellite image that pair with the panoramic view.",
+]
+
+cvg_pano2sate = [
+    "Figure out which satellite image the panoramic image was taken from.",
+    "Determine the satellite image from which the panoramic view originates.",
+    "Determine the satellite source that corresponds to the panoramic image.",
+    "Figure out the satellite image responsible for the panoramic shot.",
+    "Find out the specific satellite image from which the panoramic view was derived.",
+    "Match the panoramic photo to its satellite origin.",
+    "Find the satellite image that aligns with the panoramic photograph.",
+    "Identify the satellite origin that matches the panoramic shot.",
+    "Ascertain which satellite image is linked to the panorama.",
+    "Identify the satellite image that corresponds to the panoramic view.",
+]
+
+cvg_sate2pano = [
+    "Determine which panomatic image is taken from the satellite image.",
+    "Identify the panoramic photo that corresponds to the satellite image.",
+    "Find the panoramic representation derived from the satellite image.",
+    "Select the panoramic image that originates from the satellite image.",
+    "Locate the panoramic view that is derived from the satellite image.",
+    "Recognize the panoramic image obtained from the satellite photo.",
+    "Figure out which panoramic shot was sourced from the satellite photograph.",
+    "Identify which panoramic shot was extracted from the satellite view.",
+    "Select the panoramic picture directly associated with the satellite view.",
+]
+
+cvg_point = [
+    "Give me the point coordinates in the satellite image that the panoramic image is taken from.",
+    "Provide the coordinates of the point in the satellite image where the panoramic photo was captured.",
+    "Share the location in the satellite image corresponding to where the panoramic image was taken.",
+    "Indicate the point in the satellite image that aligns with the origin of the panoramic view.",
+    "Specify the spot in the satellite image where the panoramic picture was obtained.",
+    "Detail the coordinates in the satellite image representing the place from which the panoramic photo originates.",
+    "Give the satellite image's exact point that matches the perspective of the panoramic picture.",
+    "Identify the specific pixel or area in the satellite image where the panorama was photographed.",
+    "Highlight the coordinates in the satellite view correlating to the panorama's position of capture.",
+    "Pinpoint the location in the satellite image where the panoramic image was snapped.",
+    "Depict the geographical point on the satellite image tied to the panoramic shot.",
+    "Offer the satellite image's capture point for the panoramic view.",
+    "Point out the exact location in the satellite image associated with the panoramic image.",
+]
