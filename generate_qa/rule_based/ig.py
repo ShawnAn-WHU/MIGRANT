@@ -15,9 +15,9 @@ DIOR_R_vp = "/home/anxiao/Datasets/MIGRANT/DIOR-R/vp_1_obj.json"
 DOTA_v2_0_2_to_10 = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/label_2_to_10.json"
 DIOR_R_2_to_10 = "/home/anxiao/Datasets/MIGRANT/DIOR-R/label_2_to_10.json"
 ig_save_json = "/home/anxiao/Datasets/MIGRANT/sft/ig.json"
-ig_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/ig.txt"
+# ig_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/ig.txt"
 os.makedirs(os.path.dirname(ig_save_json), exist_ok=True)
-os.makedirs(os.path.dirname(ig_save_txt), exist_ok=True)
+# os.makedirs(os.path.dirname(ig_save_txt), exist_ok=True)
 
 with open(DOTA_v2_0_vp, "r") as f:
     DOTA_v2_0_vp = json.load(f)
@@ -59,14 +59,15 @@ def format_bbox(bbox_type, bbox_item, item):
             for i in range(0, 8, 2)
         )
 
-num_images = [2, 3, 4, 5, 6]
+num_images = [2, 3, 4, 5]
 ig_qa = []
 count = {cat: 0 for cat in constants.DOTA_DIOR_COMBINE}
+used_counter = {}
 
 for item in tqdm(ig_data):
     category = item["objects"][0]["object_name"]
-    if len(image_item_dict_ref[category]) < 6:
-        # print(f"Category {category} has less than 6 images, skipping this category.")
+    if len(image_item_dict_ref[category]) < 5:
+        # print(f"Category {category} has less than 5 images, skipping this category.")
         continue
     selected_items = random.sample(
         image_item_dict_ref[category], random.choice(num_images)
@@ -202,11 +203,15 @@ for item in tqdm(ig_data):
     ig_qa.append(qa)
     count[category] += 1
     for used_item in selected_items:
-        image_item_dict_ref[category].remove(used_item)
+        key = used_item["image_path"]
+        used_counter[key] = used_counter.get(key, 0) + 1
+        if used_counter[key] >= 3:
+            if used_item in image_item_dict_ref[category]:
+                image_item_dict_ref[category].remove(used_item)
 
 print(f"Total samples: {len(ig_qa)}")
 with open(ig_save_json, "w") as f:
     json.dump(ig_qa, f, indent=4)
-with open(ig_save_txt, "w") as f:
-    for cat in count:
-        f.write(f"{cat:<30}: {count[cat]:>6}\n")
+# with open(ig_save_txt, "w") as f:
+#     for cat in count:
+#         f.write(f"{cat:<30}: {count[cat]:>6}\n")

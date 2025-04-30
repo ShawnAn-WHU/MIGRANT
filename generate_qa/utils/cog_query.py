@@ -123,7 +123,7 @@ cog_identify = [
 
 cog_bbox = [
     "Locate this object in the image by providing its bounding box",
-    "Locate it in the image using bounding box"
+    "Locate it in the image using bounding box",
     "Identify the position of the object within the image by defining its bounding box.",
     "Provide me with the coordinates of its bounding box within the image.",
     "Share the bounding box details for it in the image.",

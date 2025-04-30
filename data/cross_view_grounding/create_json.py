@@ -72,7 +72,7 @@ if __name__ == "__main__":
         txt_file = os.path.join(label_dir, "same_area_balanced_train.txt")
         with open(txt_file, "r") as f:
             lines = f.readlines()
-        for line_number, line in enumerate(tqdm(lines)):
+        for line_number, line in enumerate(tqdm(lines), start=1):
             contents = line.strip().split(" ")
             pano_name = contents[0]
             sate_names = contents[1:12:3]
@@ -110,7 +110,7 @@ if __name__ == "__main__":
                     {
                         "pano_path": pano_path,
                         "sate_path": sate_paths[i],
-                        "sate_plot_path": os.path.join(plot_dir, f"{city}_{line_number+1}.png"),
+                        "sate_plot_path": os.path.join(plot_dir, f"{city}_{line_number}.png"),
                         "point_coords": point_coord,
                     }
                 )
@@ -146,7 +146,7 @@ if __name__ == "__main__":
                     {
                         "pano_path": pano_path,
                         "sate_paths": sate_paths,
-                        "sate_plot_paths": [os.path.join(plot_dir, f"{line_number+1}_{i+1}.png") for i in range(4)],
+                        "sate_plot_paths": [os.path.join(plot_dir, f"{line_number}_{i+1}.png") for i in range(4)],
                         "point_coords": point_coords,
                     }
                 )

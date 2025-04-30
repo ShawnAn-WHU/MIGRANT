@@ -5,9 +5,9 @@ import random
 
 json_dir = "/home/anxiao/Datasets/MIGRANT/sft"
 save_json_path = os.path.join(os.path.dirname(json_dir), "mig_12k.json")
-save_val_json_path = os.path.join(os.path.dirname(json_dir), "mig_2k_val.json")
-log_txt_path = os.path.join(os.path.dirname(json_dir), "mig_12k.txt")
-val_log_txt_path = os.path.join(os.path.dirname(json_dir), "mig_2k_val.txt")
+save_val_json_path = os.path.join(os.path.dirname(json_dir), "mig_12k_val.json")
+# log_txt_path = os.path.join(os.path.dirname(json_dir), "mig_12k.txt")
+# val_log_txt_path = os.path.join(os.path.dirname(json_dir), "mig_2k_val.txt")
 
 mig_12k_data = []
 log_entries = []
@@ -35,7 +35,7 @@ with open(save_json_path, "w") as f:
     json.dump(mig_12k_data, f, indent=4)
 with open(save_val_json_path, "w") as f:
     json.dump(mig_val_2k_data, f, indent=4)
-with open(log_txt_path, "w") as log_file:
-    log_file.write("\n".join(log_entries))
-with open(val_log_txt_path, "w") as val_log_file:
-    val_log_file.write("\n".join(val_log_entries))
+# with open(log_txt_path, "w") as log_file:
+#     log_file.write("\n".join(log_entries))
+# with open(val_log_txt_path, "w") as val_log_file:
+#     val_log_file.write("\n".join(val_log_entries))

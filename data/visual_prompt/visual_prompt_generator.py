@@ -277,7 +277,7 @@ def draw_point(
     bbox_coord,
     mask_polygon,
     outline_color=(255, 0, 0),
-    radius=3,
+    radius=5,
     aspect_ratio=1.0,
 ):
     if len(bbox_coord) == 4:

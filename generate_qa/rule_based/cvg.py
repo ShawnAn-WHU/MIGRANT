@@ -29,7 +29,7 @@ def format_point(point, sate_path):
 num_images = [2, 3, 4]
 cvg_qa = []
 
-for item in tqdm(cvg_data[:5000]):
+for item in tqdm(cvg_data[:12000]):
     pano_path = item["pano_path"]
     sate_path = item["sate_path"]
     sate_plot_path = item["sate_plot_path"]

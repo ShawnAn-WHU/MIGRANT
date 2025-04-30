@@ -18,10 +18,15 @@ DIOR_R_remove_obj = "/home/anxiao/Datasets/MIGRANT/DIOR-R/label_remove_2_to_10.j
 DIOR_R_remove_vehicle = (
     "/home/anxiao/Datasets/MIGRANT/DIOR-R/label_remove_2_to_4_vehicle.json"
 )
+NWPU_VHR_remove_obj = (
+    "/home/anxiao/Datasets/MIGRANT/NWPU-VHR-10/label_remove_2_to_10.json"
+)
+RSOD_remove_obj = "/home/anxiao/Datasets/MIGRANT/RSOD/label_remove_2_to_10.json"
+
 dg_save_json = "/home/anxiao/Datasets/MIGRANT/sft/dg.json"
-dg_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/dg.txt"
 os.makedirs(os.path.dirname(dg_save_json), exist_ok=True)
-os.makedirs(os.path.dirname(dg_save_txt), exist_ok=True)
+# dg_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/dg.txt"
+# os.makedirs(os.path.dirname(dg_save_txt), exist_ok=True)
 
 with open(DOTA_v2_0_remove_obj, "r") as f:
     DOTA_v2_0_remove_obj = json.load(f)
@@ -29,7 +34,18 @@ with open(DIOR_R_remove_obj, "r") as f:
     DIOR_R_remove_obj = json.load(f)
 with open(DIOR_R_remove_vehicle, "r") as f:
     DIOR_R_remove_vehicle = json.load(f)
-dg_data = DOTA_v2_0_remove_obj + DIOR_R_remove_obj + DIOR_R_remove_vehicle
+with open(NWPU_VHR_remove_obj, "r") as f:
+    NWPU_VHR_remove_obj = json.load(f)
+with open(RSOD_remove_obj, "r") as f:
+    RSOD_remove_obj = json.load(f)
+
+dg_data = (
+    DOTA_v2_0_remove_obj
+    + DIOR_R_remove_obj
+    + DIOR_R_remove_vehicle
+    + NWPU_VHR_remove_obj
+    + RSOD_remove_obj
+)
 
 
 def format_bbox(bbox_type, bbox_item, image_path_ori):
@@ -52,9 +68,13 @@ for item in tqdm(dg_data):
     image_path_remove = item["output_image_path"]
     objects = item["objects"]
 
+    if "obb" in objects[0]:
+        bbox_type = random.choice(["horizontal", "oriented"])
+    else:
+        bbox_type = "horizontal"
+
     compare = random.choice(["appear", "disappear"])
     dg_type = random.choice(["compare_dg", "describe_dg"])
-    bbox_type = random.choice(["horizontal", "oriented"])
     query_prefix = "Image-1: <image>\nImage-2: <image>\n"
 
     qa = copy.deepcopy(constants.QWEN2_VL_FORMAT)

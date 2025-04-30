@@ -6,7 +6,6 @@ from PIL import Image
 from tqdm import tqdm
 
 import sys
-
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from utils import constants, csg_query
 

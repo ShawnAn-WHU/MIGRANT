@@ -39,7 +39,7 @@ DOTA_DIOR_COMBINE = [
     "soccer ball field",
     "helipad",
     "expressway service area",
-    "trainstation",
+    "train station",
     "vehicle",
     "stadium",
     "basketball court",
@@ -48,3 +48,23 @@ DOTA_DIOR_COMBINE = [
     "swimming pool",
     "windmill"
 ]
+
+NWPU_VHR_10_CLASSES = {
+    1: "airplane",
+    2: "ship",
+    3: "storage tank",
+    4: "baseball diamond",
+    5: "tennis court",
+    6: "basketball court",
+    7: "ground track field",
+    8: "harbor",
+    9: "bridge",
+    10: "vehicle",
+}
+
+RSOD_CLASSES = {
+    "aircraft": "airplane",
+    "oiltank": "storage tank",
+    "playground": "ground track field",
+    "overpass": "overpass",
+}

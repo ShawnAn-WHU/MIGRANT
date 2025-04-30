@@ -1,6 +1,5 @@
 import os
 import json
-import random
 from PIL import Image
 from tqdm import tqdm
 from shapely.geometry import Polygon
@@ -42,14 +41,16 @@ def clip_region(objects_list, image_path, output_image_dir):
         x_min, y_min, x_max, y_max = bndbox[0], bndbox[1], bndbox[2], bndbox[3]
         if not (0 <= x_min < x_max <= width and 0 <= y_min < y_max <= height):
             continue
-        if ((x_max - x_min) / (y_max - y_min) > 2) or ((y_max - y_min) / (x_max - x_min) > 2):
+        if ((x_max - x_min) / (y_max - y_min) > 2) or (
+            (y_max - y_min) / (x_max - x_min) > 2
+        ):
             continue
         region_image = image.crop(bndbox)
         region_images[f"str{i}"] = [region_image, obj]
 
     suitable_objects_list = []
     if len(region_images) > 2:
-        region_images = random.sample(list(region_images.values()), random.randint(2, min(6, len(region_images))))
+        region_images = list(region_images.values())
         for i, (region_image, obj) in enumerate(region_images):
             region_path = os.path.join(
                 output_image_dir, f"{image_path.split('/')[-1].split('.')[0]}_{i+1}.png"
@@ -62,9 +63,9 @@ def clip_region(objects_list, image_path, output_image_dir):
 
 if __name__ == "__main__":
 
-    json_path = "/home/anxiao/Datasets/MIGRANT/RSOD/label_3_to_10000.json"
-    output_json = "/home/anxiao/Datasets/MIGRANT/RSOD/region_3_to_10000_obj.json"
-    output_image_dir = "/home/anxiao/Datasets/MIGRANT/RSOD/region_3_to_10000_obj"
+    json_path = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/label_3_to_10000.json"
+    output_json = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj_all.json"
+    output_image_dir = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj_all"
     os.makedirs(output_image_dir, exist_ok=True)
 
     with open(json_path, "r") as f:
@@ -85,7 +86,9 @@ if __name__ == "__main__":
         if len(objects_list) < 2:
             continue
 
-        region_path_list, suitable_objects_list = clip_region(objects_list, image_path, output_image_dir)
+        region_path_list, suitable_objects_list = clip_region(
+            objects_list, image_path, output_image_dir
+        )
         if not region_path_list and not suitable_objects_list:
             continue
         output_json_item = {

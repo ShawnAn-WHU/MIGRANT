@@ -12,9 +12,9 @@ from utils import constants, cog_query
 DOTA_v2_0_1_obj = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/label_1.json"
 DIOR_R_1_obj = "/home/anxiao/Datasets/MIGRANT/DIOR-R/label_1.json"
 cog_save_json = "/home/anxiao/Datasets/MIGRANT/sft/cog.json"
-cog_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/cog.txt"
+# cog_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/cog.txt"
 os.makedirs(os.path.dirname(cog_save_json), exist_ok=True)
-os.makedirs(os.path.dirname(cog_save_txt), exist_ok=True)
+# os.makedirs(os.path.dirname(cog_save_txt), exist_ok=True)
 
 with open(DOTA_v2_0_1_obj, "r") as f:
     DOTA_v2_0_1_obj = json.load(f)
@@ -45,16 +45,28 @@ def format_bbox(bbox_type, bbox_item):
 
 num_images = [2, 3, 4]
 cog_qa = []
-stat_txt = []
+# stat_txt = []
+used_counter = {}
+used_combinations = set()
 
 for category in image_item_dict:
-    count = 0
+    # count = 0
     while len(image_item_dict[category]) >= 4:
         qa = copy.deepcopy(constants.QWEN2_VL_FORMAT)
-        selected_item = random.sample(
-            image_item_dict[category], random.choice(num_images)
-        )
-        images = [image["image_path"] for image in selected_item]
+        found_combination = False
+        for _ in range(20):
+            selected_item = random.sample(
+                image_item_dict[category], random.choice(num_images)
+            )
+            images = [image["image_path"] for image in selected_item]
+            images_combination = tuple(sorted(images))
+            if images_combination not in used_combinations:
+                used_combinations.add(images_combination)
+                found_combination = True
+                break
+        if not found_combination:
+            break
+
         cog_type = random.choice(
             ["text_with_1st", "text_continuous", "all_images", "text_all_images"]
         )
@@ -138,15 +150,20 @@ for category in image_item_dict:
 
         qa["images"] = images
         cog_qa.append(qa)
-        count += 1
+        # count += 1
+
         for used_item in selected_item:
-            image_item_dict[category].remove(used_item)
-    stat_txt.append(f"Category: {category:<30} Count: {count:>6}")
+            key = used_item["image_path"]
+            used_counter[key] = used_counter.get(key, 0) + 1
+            if used_counter[key] >= 4:
+                if used_item in image_item_dict[category]:
+                    image_item_dict[category].remove(used_item)
+    # stat_txt.append(f"Category: {category:<30} Count: {count:>6}")
 
 print(f"Total samples: {len(cog_qa)}")
 random.shuffle(cog_qa)
 with open(cog_save_json, "w") as f:
     json.dump(cog_qa, f, indent=4)
-with open(cog_save_txt, "w") as f:
-    for line in stat_txt:
-        f.write(line + "\n")
+# with open(cog_save_txt, "w") as f:
+#     for line in stat_txt:
+#         f.write(line + "\n")

@@ -12,16 +12,22 @@ from utils import constants, icg_query
 
 DOTA_v2_0_region = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj.json"
 DIOR_R_region = "/home/anxiao/Datasets/MIGRANT/DIOR-R/region_3_to_10000_obj.json"
+NWPU_VHR_10_region = "/home/anxiao/Datasets/MIGRANT/NWPU-VHR-10/region_3_to_10000_obj.json"
+RSOD_region = "/home/anxiao/Datasets/MIGRANT/RSOD/region_3_to_10000_obj.json"
 icg_save_json = "/home/anxiao/Datasets/MIGRANT/sft/icg.json"
-icg_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/icg.txt"
+# icg_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/icg.txt"
 os.makedirs(os.path.dirname(icg_save_json), exist_ok=True)
-os.makedirs(os.path.dirname(icg_save_txt), exist_ok=True)
+# os.makedirs(os.path.dirname(icg_save_txt), exist_ok=True)
 
 with open(DOTA_v2_0_region, "r") as f:
     DOTA_v2_0_region = json.load(f)
 with open(DIOR_R_region, "r") as f:
     DIOR_R_region = json.load(f)
-icg_data = DOTA_v2_0_region + DIOR_R_region
+with open(NWPU_VHR_10_region, "r") as f:
+    NWPU_VHR_region = json.load(f)
+with open(RSOD_region, "r") as f:
+    RSOD_region = json.load(f)
+icg_data = DOTA_v2_0_region + DIOR_R_region + NWPU_VHR_region + RSOD_region
 
 
 def format_bbox(bbox_type, bbox_item, image_path_src):
@@ -37,12 +43,16 @@ def format_bbox(bbox_type, bbox_item, image_path_src):
             for i in range(0, 8, 2)
         )
 
+
 icg_qa = []
 for item in tqdm(icg_data):
     image_path_src = item["image_path"]
     num_regions = len(item["objects"])
     region_paths = [item[f"region_{i+1}"] for i in range(num_regions)]
-    bbox_type = random.choice(["horizontal", "oriented"])
+    if "obb" in item["objects"][0]:
+        bbox_type = random.choice(["horizontal", "oriented"])
+    else:
+        bbox_type = "horizontal"
     image_prefix = "Source Image: <image>\n" + "".join(
         [f"Region-{i+1}: <image>\n" for i in range(num_regions)]
     )
