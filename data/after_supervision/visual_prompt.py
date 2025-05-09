@@ -10,21 +10,25 @@ def remove_image(image_dir, vis_dir):
     for image_name in os.listdir(image_dir):
         if image_name not in vis_image_list:
             os.remove(os.path.join(image_dir, image_name))
-    
+
     print(f"after remove: {len(os.listdir(image_dir))} images")
 
 
 def remove_json_item(image_dir, json_path):
     with open(json_path, "r") as f:
         data = json.load(f)
-    
+
     print(f"before remove: {len(data)} items")
-    
-    data = [item for item in data if item["image_path"].split("/")[-1] in os.listdir(image_dir)]
-    
+
+    data = [
+        item
+        for item in data
+        if item["image_path"].split("/")[-1] in os.listdir(image_dir)
+    ]
+
     with open(json_path, "w") as f:
         json.dump(data, f, indent=4)
-    
+
     print(f"after remove: {len(data)} items")
 
 

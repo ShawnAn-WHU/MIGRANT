@@ -20,6 +20,7 @@ dg_bbox = "Give me the coordinates of bounding box where they differ."
 dg_hallucination = "There is no difference between the two images."
 ig_identify = "Identify the object circled by the <color> ellipse."
 icg_identify = "What is the object shown in Region-1?"
+icg_locate = "Where the object shown in Region-1 is located in the source image?"
 csg_bbox = "Identify the highlighted object in <image1>, give me its bounding box coordinates in <image2>."
 cvg_match = "Locate where the panomatic image is taken from the satellite image with a point."
 cvg_sate2pano = "Determine which panomatic image is taken from the satellite image."
@@ -38,10 +39,10 @@ if __name__ == "__main__":
             {"role": "system", "content": constants.rewrite_prompt},
             {
                 "role": "user",
-                "content": cvg_point,
+                "content": icg_locate,
             },
         ],
     )
 
-    with open(os.path.join(rewrite_txt_dir, "rewrite_cvg_point.txt"), "w") as f:
+    with open(os.path.join(rewrite_txt_dir, "rewrite_icg_locate.txt"), "w") as f:
         f.write(response.choices[0].message.content)

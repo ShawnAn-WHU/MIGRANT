@@ -1,6 +1,6 @@
 import os
 import json
-import argparse
+import random
 from PIL import Image
 from tqdm import tqdm
 from shapely.geometry import Polygon
@@ -51,7 +51,9 @@ def clip_region(objects_list, image_path, output_image_dir):
 
     suitable_objects_list = []
     if len(region_images) > 2:
-        region_images = list(region_images.values())
+        region_images = random.sample(
+            list(region_images.values()), random.randint(2, min(6, len(region_images)))
+        )
         for i, (region_image, obj) in enumerate(region_images):
             region_path = os.path.join(
                 output_image_dir, f"{image_path.split('/')[-1].split('.')[0]}_{i+1}.png"
@@ -64,30 +66,9 @@ def clip_region(objects_list, image_path, output_image_dir):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--json_path",
-        type=str,
-        default="/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/label_3_to_10000.json",
-        help="Path to the input JSON file.",
-    )
-    parser.add_argument(
-        "--output_json",
-        type=str,
-        default="/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj_all.json",
-        help="Path to the output JSON file.",
-    )
-    parser.add_argument(
-        "--output_image_dir",
-        type=str,
-        default="/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj_all",
-        help="Directory to save the output images.",
-    )
-    args = parser.parse_args()
-
-    json_path = args.json_path
-    output_json = args.output_json
-    output_image_dir = args.output_image_dir
+    json_path = "/home/anxiao/Datasets/MIGRANT/RSOD/label_3_to_10000.json"
+    output_json = "/home/anxiao/Datasets/MIGRANT/RSOD/region_3_to_10000_obj.json"
+    output_image_dir = "/home/anxiao/Datasets/MIGRANT/RSOD/region_3_to_10000_obj"
     os.makedirs(output_image_dir, exist_ok=True)
 
     with open(json_path, "r") as f:

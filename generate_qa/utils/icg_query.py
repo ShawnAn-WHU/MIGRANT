@@ -11,9 +11,23 @@ icg_identify = [
     "What is the object located in Region-?",
 ]
 
+icg_locate = [
+    "Identify the item displayed in Region-1 within the source image using the horizontal bounding box.",
+    "Find the object depicted in Region-1 inside the source image, considering the horizontal bounding box.",
+    "Search for the item visible in Region-1 within the source image based on its horizontal bounding box.",
+    "Pinpoint the object shown in Region-1 in the source image through the horizontal bounding box.",
+    "Detect the object highlighted in Region-1 in the source image by referring to the horizontal bounding box.",
+    "Locate the item displayed in Region-1 inside the source image using the horizontal bounding box for guidance.",
+    "Identify where the object from Region-1 is positioned in the source image, defined by its horizontal bounding box.",
+    "Where is the object shown in Region-1 located in the source image, as indicated by the horizontal bounding box?",
+    "In which part of the source image can the object depicted in Region-1 be found, guided by the horizontal bounding box?",
+    "Can you identify the position of the object seen in Region-1 within the source image, using the horizontal bounding box as a reference?",
+    "What is the location of the object in Region-1 within the source image, based on the horizontal bounding box?"
+]
+
 icg_bbox = [
     "Locate this object in the image by providing its bounding box",
-    "Locate it in the image using bounding box"
+    "Locate it in the image using bounding box.",
     "Identify the position of the object within the image by defining its bounding box.",
     "Provide me with the coordinates of its bounding box within the image.",
     "Share the bounding box details for it in the image.",

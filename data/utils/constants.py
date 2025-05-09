@@ -1,3 +1,4 @@
+# determine the synonyms of these two datasets
 DOTA_DIOR_SYNONYMS = {
     "plane": "airplane",
     "baseball-diamond": "baseball diamond",
@@ -20,6 +21,7 @@ DOTA_DIOR_SYNONYMS = {
     "tenniscourt": "tennis court",
 }
 
+# final merged categories for DOTA and DIOR
 DOTA_DIOR_COMBINE = [
     "airport",
     "container crane",
@@ -49,6 +51,7 @@ DOTA_DIOR_COMBINE = [
     "windmill"
 ]
 
+# included in DOTA_DIOR_COMBINE
 NWPU_VHR_10_CLASSES = {
     1: "airplane",
     2: "ship",
@@ -62,6 +65,7 @@ NWPU_VHR_10_CLASSES = {
     10: "vehicle",
 }
 
+# included in DOTA_DIOR_COMBINE
 RSOD_CLASSES = {
     "aircraft": "airplane",
     "oiltank": "storage tank",

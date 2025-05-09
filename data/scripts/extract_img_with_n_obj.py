@@ -50,7 +50,7 @@ if __name__ == "__main__":
         "-i",
         type=str,
         default="[]",
-        help="included objects in the image (comma separated)",
+        help="Constrain the categories in the image (comma separated)",
     )
     args = parser.parse_args()
 

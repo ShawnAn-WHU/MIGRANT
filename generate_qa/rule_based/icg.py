@@ -10,10 +10,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from utils import constants, icg_query
 
 
-DOTA_v2_0_region = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj.json"
-DIOR_R_region = "/home/anxiao/Datasets/MIGRANT/DIOR-R/region_3_to_10000_obj.json"
-NWPU_VHR_10_region = "/home/anxiao/Datasets/MIGRANT/NWPU-VHR-10/region_3_to_10000_obj.json"
-RSOD_region = "/home/anxiao/Datasets/MIGRANT/RSOD/region_3_to_10000_obj.json"
+DOTA_v2_0_region = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj_all.json"
+DIOR_R_region = "/home/anxiao/Datasets/MIGRANT/DIOR-R/region_3_to_10000_obj_all.json"
+NWPU_VHR_10_region = "/home/anxiao/Datasets/MIGRANT/NWPU-VHR-10/region_3_to_10000_obj_all.json"
+RSOD_region = "/home/anxiao/Datasets/MIGRANT/RSOD/region_3_to_10000_obj_all.json"
 icg_save_json = "/home/anxiao/Datasets/MIGRANT/sft/icg.json"
 # icg_save_txt = "/home/anxiao/Datasets/MIGRANT/stat_txt/icg.txt"
 os.makedirs(os.path.dirname(icg_save_json), exist_ok=True)
@@ -44,89 +44,106 @@ def format_bbox(bbox_type, bbox_item, image_path_src):
         )
 
 
+def split_chunks(region_paths, max_size=4):
+    chunks = []
+    i = 0
+    while i < len(region_paths):
+        remaining = len(region_paths) - i
+        chunk_size = random.randint(2, min(max_size, remaining) + 1) if remaining > 1 else 1
+        chunks.append(region_paths[i : i + chunk_size])
+        i += chunk_size
+    
+    return chunks
+
+
 icg_qa = []
 for item in tqdm(icg_data):
     image_path_src = item["image_path"]
     num_regions = len(item["objects"])
     region_paths = [item[f"region_{i+1}"] for i in range(num_regions)]
-    if "obb" in item["objects"][0]:
-        bbox_type = random.choice(["horizontal", "oriented"])
-    else:
-        bbox_type = "horizontal"
-    image_prefix = "Source Image: <image>\n" + "".join(
-        [f"Region-{i+1}: <image>\n" for i in range(num_regions)]
-    )
-    query_prefix = "These are a series of source image followed by its region crops. "
-    icg_type = random.choice(
-        ["identify_with_1st", "identify_continuous", "all_regions"]
-    )
-    qa = copy.deepcopy(constants.QWEN2_VL_FORMAT)
+    chunks = split_chunks(region_paths)
+    index = 0
+    for chunk in chunks:
+        num_regions = len(chunk)
+        if "obb" in item["objects"][0]:
+            bbox_type = random.choice(["horizontal", "oriented"])
+        else:
+            bbox_type = "horizontal"
+        image_prefix = "Source Image: <image>\n" + "".join(
+            [f"Region-{i+1}: <image>\n" for i in range(num_regions)]
+        )
+        query_prefix = "These are a series of source image followed by its region crops. "
+        icg_type = random.choice(
+            ["identify_with_1st", "identify_continuous", "all_regions"]
+        )
+        qa = copy.deepcopy(constants.QWEN2_VL_FORMAT)
 
-    if icg_type == "identify_with_1st":
-        for i in range(1, num_regions + 1):
-            query_identify = random.choice(icg_query.icg_identify).replace(
-                "Region-", f"Region-{i}"
-            )
-            query_text = image_prefix + query_prefix + query_identify
-            if i != 1:
-                query_text = query_identify
-            suffix = f"{i}st" if i == 1 else f"{i}nd" if i == 2 else f"{i}th"
-            qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
-            qa_item[0]["content"] = (
-                query_text
+        if icg_type == "identify_with_1st":
+            for i in range(1, num_regions + 1):
+                query_identify = random.choice(icg_query.icg_identify).replace(
+                    "Region-", f"Region-{i}"
+                )
+                query_text = image_prefix + query_prefix + query_identify
+                if i != 1:
+                    query_text = query_identify
+                suffix = f"{i}st" if i == 1 else f"{i}nd" if i == 2 else f"{i}th"
+                qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
+                qa_item[0]["content"] = (
+                    query_text
+                    + " "
+                    + random.choice(icg_query.icg_bbox)
+                    .replace("bounding box", f"{bbox_type} bounding box")
+                    .replace("in the image", "in the source image")
+                )
+                bbox = format_bbox(bbox_type, item["objects"][i + index - 1], image_path_src)
+                qa_item[1][
+                    "content"
+                ] = f"<|object_ref_start|>{item['objects'][i + index - 1]['object_name']}<|object_ref_end|><|box_start|>{bbox}<|box_end|>"
+                qa["messages"].extend(qa_item)
+        elif icg_type == "identify_continuous":
+            for i in range(1, num_regions + 1):
+                query_identify = random.choice(icg_query.icg_identify).replace(
+                    "Region-", f"Region-{i}"
+                )
+                query_text = image_prefix + query_prefix + query_identify
+                if i != 1:
+                    query_text = query_identify
+                qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
+                qa_item[0]["content"] = query_text
+                qa_item[1]["content"] = f"{item['objects'][i + index - 1]['object_name']}"
+                qa["messages"].extend(qa_item)
+                qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
+                qa_item[0]["content"] = (
+                    random.choice(icg_query.icg_bbox)
+                    .replace("bounding box", f"{bbox_type} bounding box")
+                    .replace("in the image", "in the source image")
+                )
+                bbox = format_bbox(bbox_type, item["objects"][i - 1], image_path_src)
+                qa_item[1][
+                    "content"
+                ] = f"<|object_ref_start|>{item['objects'][i + index - 1]['object_name']}<|object_ref_end|><|box_start|>{bbox}<|box_end|>"
+                qa["messages"].extend(qa_item)
+        elif icg_type == "all_regions":
+            query_text = (
+                image_prefix
+                + query_prefix
+                + random.choice(icg_query.icg_identify).replace("Region-", "each region")
                 + " "
-                + random.choice(icg_query.icg_bbox)
-                .replace("bounding box", f"{bbox_type} bounding box")
-                .replace("in the image", "in the source image")
             )
-            bbox = format_bbox(bbox_type, item["objects"][i - 1], image_path_src)
-            qa_item[1][
-                "content"
-            ] = f"<|object_ref_start|>{item['objects'][i - 1]['object_name']}<|object_ref_end|><|box_start|>{bbox}<|box_end|>"
-            qa["messages"].extend(qa_item)
-    elif icg_type == "identify_continuous":
-        for i in range(1, num_regions + 1):
-            query_identify = random.choice(icg_query.icg_identify).replace(
-                "Region-", f"Region-{i}"
+            query_text += random.choice(icg_query.icg_bbox_all_region).replace(
+                "bounding box", f"{bbox_type} bounding box"
             )
-            query_text = image_prefix + query_prefix + query_identify
-            if i != 1:
-                query_text = query_identify
             qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
             qa_item[0]["content"] = query_text
-            qa_item[1]["content"] = f"{item['objects'][i-1]['object_name']}"
-            qa["messages"].extend(qa_item)
-            qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
-            qa_item[0]["content"] = (
-                random.choice(icg_query.icg_bbox)
-                .replace("bounding box", f"{bbox_type} bounding box")
-                .replace("in the image", "in the source image")
+            qa_item[1]["content"] = "".join(
+                f"Region-{i+1}: <|object_ref_start|>{item['objects'][i + index]['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, item['objects'][i], image_path_src)}<|box_end|>"
+                for i in range(num_regions)
             )
-            bbox = format_bbox(bbox_type, item["objects"][i - 1], image_path_src)
-            qa_item[1][
-                "content"
-            ] = f"<|object_ref_start|>{item['objects'][i - 1]['object_name']}<|object_ref_end|><|box_start|>{bbox}<|box_end|>"
             qa["messages"].extend(qa_item)
-    elif icg_type == "all_regions":
-        query_text = (
-            image_prefix
-            + query_prefix
-            + random.choice(icg_query.icg_identify).replace("Region-", "each region")
-            + " "
-        )
-        query_text += random.choice(icg_query.icg_bbox_all_region).replace(
-            "bounding box", f"{bbox_type} bounding box"
-        )
-        qa_item = copy.deepcopy(constants.QWEN2_VL_QA_FORMAT)
-        qa_item[0]["content"] = query_text
-        qa_item[1]["content"] = "".join(
-            f"Region-{i+1}: <|object_ref_start|>{item['objects'][i]['object_name']}<|object_ref_end|><|box_start|>{format_bbox(bbox_type, item['objects'][i], image_path_src)}<|box_end|>"
-            for i in range(num_regions)
-        )
-        qa["messages"].extend(qa_item)
 
-    qa["images"] = [image_path_src] + region_paths
-    icg_qa.append(qa)
+        index += len(chunk)
+        qa["images"] = [image_path_src] + chunk
+        icg_qa.append(qa)
 
 print(f"Total samples: {len(icg_qa)}")
 with open(icg_save_json, "w") as f:

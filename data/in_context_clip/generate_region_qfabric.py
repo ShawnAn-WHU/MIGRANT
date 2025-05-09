@@ -6,7 +6,7 @@ from shapely.geometry import Polygon
 
 
 def is_area_large(bbox, threshold=1000):
-    bndbox = json.loads(bbox)
+    bndbox = bbox
     if len(bndbox) == 8:
         polygon = Polygon(
             [
@@ -37,12 +37,12 @@ def clip_region(objects_list, image_path, output_image_dir):
     region_path_list = []
     region_images = {}
     for i, obj in enumerate(objects_list):
-        bndbox = json.loads(obj["hbb"])
+        bndbox = obj["hbb"]
         x_min, y_min, x_max, y_max = bndbox[0], bndbox[1], bndbox[2], bndbox[3]
         if not (0 <= x_min < x_max <= width and 0 <= y_min < y_max <= height):
             continue
-        if ((x_max - x_min) / (y_max - y_min) > 2) or (
-            (y_max - y_min) / (x_max - x_min) > 2
+        if ((x_max - x_min) / (y_max - y_min) > 3) or (
+            (y_max - y_min) / (x_max - x_min) > 3
         ):
             continue
         region_image = image.crop(bndbox)
@@ -63,9 +63,9 @@ def clip_region(objects_list, image_path, output_image_dir):
 
 if __name__ == "__main__":
 
-    json_path = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/label_3_to_10000.json"
-    output_json = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj_all.json"
-    output_image_dir = "/home/anxiao/Datasets/MIGRANT/DOTA-v2_0/region_3_to_10000_obj_all"
+    json_path = "/home/anxiao/Datasets/MIGRANT/QFabric/icg/label.json"
+    output_json = "/home/anxiao/Datasets/MIGRANT/QFabric/region_all.json"
+    output_image_dir = "/home/anxiao/Datasets/MIGRANT/QFabric/region_all"
     os.makedirs(output_image_dir, exist_ok=True)
 
     with open(json_path, "r") as f:
@@ -77,13 +77,9 @@ if __name__ == "__main__":
         image_path = item["image_path"]
         objects_list = []
         for obj in item["objects"]:
-            if "obb" in obj:
-                if is_area_large(obj["obb"], 10000):
-                    objects_list.append(obj)
-            else:
-                if is_area_large(obj["hbb"], 14400):
-                    objects_list.append(obj)
-        if len(objects_list) < 2:
+            if is_area_large(obj["hbb"], 10000):
+                objects_list.append(obj)
+        if len(objects_list) == 0:
             continue
 
         region_path_list, suitable_objects_list = clip_region(
